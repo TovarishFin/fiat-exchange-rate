@@ -5,8 +5,8 @@ import "zeppelin-solidity/contracts/ownership/Ownable.sol";
 
 
 contract ExchangeRates is usingOraclize, Ownable {
-  uint256 usdRate;
-  uint256 eurRate;
+  uint256 public usdRate;
+  uint256 public eurRate;
   bool public ratesActive;
   // keep track of queries for reorg protection and track types
   // 1 for usd 2 for eur
@@ -15,6 +15,7 @@ contract ExchangeRates is usingOraclize, Ownable {
   event RateUpdated(bytes32 indexed currency, uint256 rate);
   event QueryNoMinBalance();
   event QuerySent();
+  event Debug(bytes32 queryId, uint256 queryType, string result);
 
   function ExchangeRates()
     public
@@ -25,13 +26,14 @@ contract ExchangeRates is usingOraclize, Ownable {
   }
 
   // callback function to get results of oraclize call
-  function __callback(bytes32 _queryId, string _result)
+  function __callback(bytes32 _queryId, string _result, bytes _proof)
     public
   {
     require(msg.sender == oraclize_cbAddress());
     uint256 _queryType = queryTypes[_queryId];
     require(_queryType > 0);
     queryTypes[_queryId] = 0;
+    Debug(_queryId, _queryType, _result);
 
     if (_queryType == 1) {
       usdRate = parseInt(_result);
@@ -108,5 +110,12 @@ contract ExchangeRates is usingOraclize, Ownable {
     ratesActive = true;
     fetchUsdRate();
     fetchEurRate();
+  }
+
+  function selfDestruct()
+    public
+    onlyOwner
+  {
+    selfdestruct(owner);
   }
 }
