@@ -1,10 +1,10 @@
 const assert = require('assert')
-const Example = artifacts.require('./Example.sol')
+const ExchangeRates = artifacts.require('./ExchangeRates.sol')
 const BigNumber = require('bignumber.js')
 
-describe('when deploying Example', () => {
-  contract('Example', accounts => {
-    const name = 'ExampleCoin'
+describe('when deploying ExchangeRates', () => {
+  contract('ExchangeRates', accounts => {
+    const name = 'ExchangeRatesCoin'
     const symbol = 'EXL'
     const decimals = new BigNumber(18)
     const totalSupply = new BigNumber(100e18)
@@ -12,7 +12,7 @@ describe('when deploying Example', () => {
     let exl
 
     before('setup contracts', async () => {
-      exl = await Example.new(name, symbol, decimals, totalSupply)
+      exl = await ExchangeRates.new(name, symbol, decimals, totalSupply)
     })
 
     it('should start with the correct values', async () => {
