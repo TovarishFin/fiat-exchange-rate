@@ -36,9 +36,11 @@ contract ExchangeRates is usingOraclize, Ownable {
     if (_queryType == 1) {
       usdRate = parseInt(_result);
       RateUpdated(bytes32("usd"), usdRate);
+      fetchUsdRate();
     } else {
       eurRate = parseInt(_result);
       RateUpdated(bytes32("eur"), usdRate);
+      fetchEurRate();
     }
   }
 
