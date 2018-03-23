@@ -40,9 +40,9 @@ contract ExchangeRates is usingOraclize {
     payable
   {
     require(msg.value >= 5e17);
-    require(_gasLimit > 0);
-    require(_gasPrice > 0);
-    require(_callInterval > 60);
+    require(_gasLimit >= 2e5);
+    require(_gasPrice >= 1e9);
+    require(_callInterval >= 60);
     require(!stringIsEmpty(_usdQueryString));
     require(!stringIsEmpty(_eurQueryString));
     oraclize_setProof(proofType_TLSNotary | proofStorage_IPFS);
@@ -51,7 +51,7 @@ contract ExchangeRates is usingOraclize {
     callbackGasPrice = _gasPrice;
     callInterval = _callInterval;
     usdQueryString = _usdQueryString;
-    eurQueryString = eurQueryString;
+    eurQueryString = _eurQueryString;
     oraclize_setCustomGasPrice(callbackGasPrice);
   }
 
@@ -94,6 +94,10 @@ contract ExchangeRates is usingOraclize {
     payable
     returns (bool)
   {
+    if (msg.sender == owner) {
+      require(!ratesActive);
+    }
+
     if (oraclize_getPrice("URL") > this.balance) {
       QueryNoMinBalance();
       return false;
@@ -115,6 +119,10 @@ contract ExchangeRates is usingOraclize {
     payable
     returns (bool)
   {
+    if (msg.sender == owner) {
+      require(!ratesActive);
+    }
+
     if (oraclize_getPrice("URL") > this.balance) {
       QueryNoMinBalance();
       return false;
@@ -141,9 +149,9 @@ contract ExchangeRates is usingOraclize {
     public
     onlyOwner
   {
-    ratesActive = true;
     fetchUsdRate(0);
     fetchEurRate(0);
+    ratesActive = true;
   }
 
   function changeOraclizedParams(
@@ -156,9 +164,9 @@ contract ExchangeRates is usingOraclize {
     public
     onlyOwner
   {
-    require(_gasLimit > 0);
-    require(_gasPrice > 0);
-    require(_callInterval > 60);
+    require(_gasLimit >= 2e5);
+    require(_gasPrice >= 1e9);
+    require(_callInterval >= 60);
     require(!stringIsEmpty(_usdQueryString));
     require(!stringIsEmpty(_eurQueryString));
     callbackGasLimit = _gasLimit;
@@ -166,6 +174,11 @@ contract ExchangeRates is usingOraclize {
     callInterval = _callInterval;
     oraclize_setCustomGasPrice(callbackGasPrice);
   }
+
+  function()
+    public
+    payable
+  {}
 
   function selfDestruct()
     public
