@@ -98,7 +98,7 @@ contract ExchangeRates is usingOraclize {
       require(!ratesActive);
     }
 
-    if (oraclize_getPrice("URL") > this.balance) {
+    if (oraclize_getPrice("URL") > address(this).balance) {
       QueryNoMinBalance();
       return false;
     } else {
